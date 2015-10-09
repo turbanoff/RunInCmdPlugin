@@ -1,0 +1,44 @@
+<idea-plugin version="2">
+    <id>com.yourcompany.unique.plugin.id</id>
+    <name>RunInCmd</name>
+    <version>1.0</version>
+    <vendor email="turbanoff@gmail.com" url="http://github.com/turbanoff">Turbanov Andrey</vendor>
+
+    <description><![CDATA[
+    Run java program in cmd.exe instead of internal IDEA console
+    ]]></description>
+
+    <!--Add change notes here.<br>-->
+    <!--<em>most HTML tags may be used</em>-->
+    <change-notes><![CDATA[
+        Init version
+    ]]>
+    </change-notes>
+
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="131"/>
+
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <executor implementation="org.turbanov.execution.cmd.InCmdExecutor"/>
+        <programRunner implementation="org.turbanov.execution.cmd.InCmdRunner"/>
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
