@@ -1,11 +1,12 @@
 <idea-plugin version="2">
-    <id>com.yourcompany.unique.plugin.id</id>
+    <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
     <version>1.0</version>
-    <vendor email="turbanoff@gmail.com" url="http://github.com/turbanoff">Turbanov Andrey</vendor>
+    <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
-    Run java program in cmd.exe instead of internal IDEA console
+    Run java program in cmd.exe instead of internal IDEA console.<br>
+    Also it allows to modify program and VM options before run
     ]]></description>
 
     <!--Add change notes here.<br>-->
@@ -16,7 +17,7 @@
     </change-notes>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="131"/>
+    <idea-version since-build="139"/>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
          on how to target different products -->

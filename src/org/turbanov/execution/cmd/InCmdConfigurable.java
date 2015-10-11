@@ -45,7 +45,7 @@ public class InCmdConfigurable implements Configurable  {
     public JComponent createComponent() {
         myState = ServiceManager.getService(myProject, OptionsPatchConfiguration.class);
 
-        GridLayout layout = new GridLayout(4, 1, JBUI.scale(3), JBUI.scale(3));
+        GridLayout layout = new GridLayout(4, 1, 6, 6);
         JPanel result = new JPanel(layout);
 
         toAddVmOptions = new JTextArea(myState.toAddVmOptions);
