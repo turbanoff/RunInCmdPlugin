@@ -13,6 +13,7 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.util.PathsList;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Andrey Turbanov
@@ -46,8 +48,8 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         JavaApplicationCommandLineState state = (JavaApplicationCommandLineState) runProfileState;
         JavaParameters javaParameters = state.getJavaParameters();
 
-        GeneralCommandLine commandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
-        LOG.info("Old command line: " + commandLine);
+        GeneralCommandLine oldCommandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
+        LOG.info("Old command line: " + oldCommandLine);
 
         OptionsPatchConfiguration options = ServiceManager.getService(environment.getProject(), OptionsPatchConfiguration.class);
         patchParameterList(javaParameters.getVMParametersList(), options.toAddVmOptions, options.toRemoveVmOptions);
@@ -55,23 +57,36 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
 
         String workingDirectory = state.getJavaParameters().getWorkingDirectory();
 
-        commandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
+        PathsList classPath = javaParameters.getClassPath();
+        String classPathPathsString = classPath.getPathsString();
+        clear(classPath);
+
+        GeneralCommandLine generalCommandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
+        String newCommandLine = generalCommandLine.getCommandLineString().replace("&", "^&");
         Process start;
         try {
-            ProcessBuilder builder = new ProcessBuilder().command("cmd.exe", "/C", "\"cd /D \"" + workingDirectory + "\" && start cmd.exe /K \"" + commandLine.getCommandLineString() + "\"\"");
+            ProcessBuilder builder = new ProcessBuilder().command("cmd.exe", "/C", "\"cd /D \"" + workingDirectory + "\" && start cmd.exe /K \"" + newCommandLine + "\"\"");
+            builder.environment().put("CLASSPATH", classPathPathsString);
             LOG.info("" + builder.command());
             start = builder.start();
         } catch (IOException e) {
             LOG.info(e);
-            throw new ProcessNotCreatedException(e.getMessage(), e, commandLine);
+            throw new ProcessNotCreatedException(e.getMessage(), e, generalCommandLine);
         }
 
         CapturingProcessHandler processHandler = new CapturingProcessHandler(start, Charset.forName("cp866"));
         ProcessOutput output = processHandler.runProcess();
         LOG.debug("Process output: " + output.getStdout());
-        LOG.debug("Process error: " + output.getStderr());
+        LOG.info("Process error: " + output.getStderr());
 
         return null;
+    }
+
+    private void clear(PathsList classPath) {
+        List<String> pathList = classPath.getPathList();
+        for (String path : pathList) {
+            classPath.remove(path);
+        }
     }
 
     private void patchParameterList(ParametersList parametersList, String toAdd, String toRemove) {
