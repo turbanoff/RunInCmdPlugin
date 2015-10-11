@@ -72,10 +72,10 @@ public class InCmdConfigurable implements Configurable  {
     @Override
     public void apply() throws ConfigurationException {
         OptionsPatchConfiguration state = new OptionsPatchConfiguration();
-        state.toAddVmOptions = toAddVmOptions.getText();
-        state.toRemoveVmOptions = toRemoveVmOptions.getText();
-        state.toAddProgramOptions = toAddProgramOptions.getText();
-        state.toRemoveProgramOptions = toRemoveProgramOptions.getText();
+        state.toAddVmOptions = toAddVmOptions.getText().trim();
+        state.toRemoveVmOptions = toRemoveVmOptions.getText().trim();
+        state.toAddProgramOptions = toAddProgramOptions.getText().trim();
+        state.toRemoveProgramOptions = toRemoveProgramOptions.getText().trim();
         ServiceManager.getService(myProject, OptionsPatchConfiguration.class).loadState(state);
     }
 

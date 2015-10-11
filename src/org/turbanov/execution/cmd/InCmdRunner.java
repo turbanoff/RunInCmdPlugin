@@ -10,14 +10,16 @@ import com.intellij.execution.process.ProcessOutput;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.GenericProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * @author Andrey Turbanov
@@ -43,14 +45,17 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         FileDocumentManager.getInstance().saveAllDocuments();
         JavaApplicationCommandLineState state = (JavaApplicationCommandLineState) runProfileState;
         JavaParameters javaParameters = state.getJavaParameters();
-        ParametersList vmParametersList = javaParameters.getVMParametersList();
 
-        //patchVmParameters(vmParametersList);
+        GeneralCommandLine commandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
+        LOG.info("Old command line: " + commandLine);
 
+        OptionsPatchConfiguration options = ServiceManager.getService(environment.getProject(), OptionsPatchConfiguration.class);
+        patchParameterList(javaParameters.getVMParametersList(), options.toAddVmOptions, options.toRemoveVmOptions);
+        patchParameterList(javaParameters.getProgramParametersList(), options.toAddProgramOptions, options.toRemoveProgramOptions);
 
         String workingDirectory = state.getJavaParameters().getWorkingDirectory();
 
-        GeneralCommandLine commandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
+        commandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), true);
         Process start;
         try {
             ProcessBuilder builder = new ProcessBuilder().command("cmd.exe", "/C", "\"cd /D \"" + workingDirectory + "\" && start cmd.exe /K \"" + commandLine.getCommandLineString() + "\"\"");
@@ -63,30 +68,30 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
 
         CapturingProcessHandler processHandler = new CapturingProcessHandler(start, Charset.forName("cp866"));
         ProcessOutput output = processHandler.runProcess();
-        LOG.debug("Process output\n" + output.getStdout());
-        LOG.debug("Process error\n" + output.getStderr());
+        LOG.debug("Process output: " + output.getStdout());
+        LOG.debug("Process error: " + output.getStderr());
 
         return null;
     }
 
-    private void patchVmParameters(ParametersList vmParametersList) {
-        String toRemove = "-Djline.terminal=jline.UnsupportedTerminal";
-        String toAdd = "-javaagent:libs/spring-instrument-4.1.7.RELEASE.jar -Dspring.profiles.active=\"server-default,testprofile\"";
-
-        List<String> parameters = vmParametersList.getParameters();
-
-        String[] toRemoveParams = ParametersList.parse(toRemove);
-        String[] toAddParams = ParametersList.parse(toAdd);
-        for (String toRemoveParam : toRemoveParams) {
-            int i = parameters.indexOf(toRemoveParam);
-            if (i != -1) {
-                parameters.set(i, "");
+    private void patchParameterList(ParametersList parametersList, String toAdd, String toRemove) {
+        if (!toAdd.isEmpty()) {
+            String[] toAddParams = ParametersList.parse(toAdd);
+            for (String toAddParam : toAddParams) {
+                if (!parametersList.hasParameter(toAddParam)) {
+                    parametersList.add(toAddParam);
+                }
             }
         }
 
-        for (String toAddParam : toAddParams) {
-            if (!vmParametersList.hasParameter(toAddParam)) {
-                vmParametersList.add(toAddParam);
+        if (!toRemove.isEmpty()) {
+            HashSet<String> toRemoveParams = ContainerUtil.newHashSet(ParametersList.parse(toRemove));
+            String[] oldParameters = parametersList.getArray();
+            parametersList.clearAll();
+            for (String oldParameter : oldParameters) {
+                if (!toRemoveParams.contains(oldParameter)) {
+                    parametersList.add(oldParameter);
+                }
             }
         }
     }
