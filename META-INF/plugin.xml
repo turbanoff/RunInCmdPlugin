@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>1.0</version>
+    <version>1.1</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,7 +12,15 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
-        Init version
+        <h3>1.1</h3>
+        <ul>
+            <li>Properly handle long classpath</li>
+            <li>Properly escape ampersand &</li>
+        </ul>
+        <h3>1.0</h3>
+        <ul>
+            <li>Init version</li>
+        </ul>
     ]]>
     </change-notes>
 
