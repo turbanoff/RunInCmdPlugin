@@ -27,6 +27,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <executor implementation="org.turbanov.execution.cmd.InCmdExecutor"/>
         <programRunner implementation="org.turbanov.execution.cmd.InCmdRunner"/>
+        <projectConfigurable instance="org.turbanov.execution.cmd.InCmdConfigurable"/>
+        <projectService serviceImplementation="org.turbanov.execution.cmd.OptionsPatchConfiguration"/>
     </extensions>
 
     <application-components>
