@@ -16,6 +16,7 @@ public class OptionsPatchConfiguration implements PersistentStateComponent<Optio
     public String toRemoveVmOptions = "";
     public String toAddProgramOptions = "";
     public String toRemoveProgramOptions = "";
+    public boolean isRunInsideTerminal = false;
 
     @NotNull
     @Override
@@ -29,5 +30,6 @@ public class OptionsPatchConfiguration implements PersistentStateComponent<Optio
         toRemoveVmOptions = state.toRemoveVmOptions;
         toAddProgramOptions = state.toAddProgramOptions;
         toRemoveProgramOptions = state.toRemoveProgramOptions;
+        isRunInsideTerminal = state.isRunInsideTerminal;
     }
 }
