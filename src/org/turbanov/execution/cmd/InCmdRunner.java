@@ -79,7 +79,16 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         clear(classPath);
 
         GeneralCommandLine generalCommandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), false);
-        String newCommandLine = generalCommandLine.getCommandLineString().replace("&", "^&");
+        String original = generalCommandLine.getCommandLineString();
+        String newCommandLine = original
+                .replace("&", "^&")
+                .replace("<", "^<")
+                .replace(">", "^>")
+                .replace("(", "^(")
+                .replace(")", "^)")
+                .replace("@", "^@")
+                .replace("^", "^^")
+                .replace("|", "^|");
 
         if (options.isRunInsideTerminal && isTerminalPluginEnabled()) {
             try {
