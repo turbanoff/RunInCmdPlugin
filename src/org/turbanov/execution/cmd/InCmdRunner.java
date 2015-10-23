@@ -27,6 +27,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
@@ -117,13 +118,14 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         return null;
     }
 
-    private void runInExternalCmd(String classPathPathsString, GeneralCommandLine generalCommandLine, String workingDirectory, String commandLine) throws ProcessNotCreatedException {
-        String[] command = {"cmd.exe", "/C", "\"cd /D \"" + workingDirectory + "\" && start cmd.exe /K \"" + commandLine + "\"\""};
+    private static void runInExternalCmd(String classPathPathsString, GeneralCommandLine generalCommandLine, String workingDirectory, String commandLine) throws ProcessNotCreatedException {
+        String[] command = {"cmd.exe", "/C", "\"start cmd.exe /K \"" + commandLine + "\"\""};
         Process start;
         try {
             ProcessBuilder builder = new ProcessBuilder().command(command);
+            builder.directory(new File(workingDirectory));
             builder.environment().put("CLASSPATH", classPathPathsString);
-            LOG.info("" + builder.command());
+            LOG.info(builder.command().toString());
             start = builder.start();
         } catch (IOException e) {
             LOG.info(e);
@@ -136,14 +138,14 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         LOG.info("Process error: " + output.getStderr());
     }
 
-    private void clear(PathsList classPath) {
+    private static void clear(PathsList classPath) {
         List<String> pathList = classPath.getPathList();
         for (String path : pathList) {
             classPath.remove(path);
         }
     }
 
-    private void patchParameterList(ParametersList parametersList, String toAdd, String toRemove) {
+    private static void patchParameterList(ParametersList parametersList, String toAdd, String toRemove) {
         if (!toAdd.isEmpty()) {
             String[] toAddParams = ParametersList.parse(toAdd);
             for (String toAddParam : toAddParams) {
