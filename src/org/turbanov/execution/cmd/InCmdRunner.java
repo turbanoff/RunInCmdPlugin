@@ -101,7 +101,7 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
                         .createHtmlTextBalloonBuilder("Unable to run in internal IDEA Terminal due to '" + e.getMessage() + "'<br>Run in external cmd instead", MessageType.WARNING, null)
                         .setHideOnClickOutside(true)
                         .createBalloon()
-                        .show(RelativePoint.getNorthEastOf(statusBar.getComponent()), Balloon.Position.atRight);
+                        .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.above);
                 runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
             }
         } else {
@@ -111,7 +111,7 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
                         .createHtmlTextBalloonBuilder("Terminal plugin disabled<br>Run in external cmd instead", MessageType.WARNING, null)
                         .setHideOnClickOutside(true)
                         .createBalloon()
-                        .show(RelativePoint.getNorthEastOf(statusBar.getComponent()), Balloon.Position.atRight);
+                        .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.above);
             }
             runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
         }
@@ -132,7 +132,7 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
             throw new ProcessNotCreatedException(e.getMessage(), e, generalCommandLine);
         }
 
-        CapturingProcessHandler processHandler = new CapturingProcessHandler(start, Charset.forName("cp866"));
+        CapturingProcessHandler processHandler = new CapturingProcessHandler(start, Charset.forName("cp866"), commandLine);
         ProcessOutput output = processHandler.runProcess();
         LOG.debug("Process output: " + output.getStdout());
         LOG.info("Process error: " + output.getStderr());
