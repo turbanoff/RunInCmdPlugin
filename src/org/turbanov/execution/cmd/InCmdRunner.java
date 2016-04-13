@@ -135,7 +135,10 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         CapturingProcessHandler processHandler = new CapturingProcessHandler(start, Charset.forName("cp866"), commandLine);
         ProcessOutput output = processHandler.runProcess();
         LOG.debug("Process output: " + output.getStdout());
-        LOG.info("Process error: " + output.getStderr());
+        String processErrors = output.getStderr();
+        if (!processErrors.isEmpty()) {
+            LOG.info("Process error: " + processErrors);
+        }
     }
 
     private static void clear(PathsList classPath) {
