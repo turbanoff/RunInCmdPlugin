@@ -93,7 +93,7 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
 
         if (options.isRunInsideTerminal && isTerminalPluginEnabled()) {
             try {
-                String[] command = {"cmd.exe /K \"" + newCommandLine + "\""};
+                String[] command = {"cmd.exe", "/K", newCommandLine};
                 TerminalRunner.runInIdeaTerminal(environment.getProject(), command, classPathPathsString, workingDirectory);
             } catch (Throwable e) {
                 StatusBar statusBar = WindowManager.getInstance().getStatusBar(environment.getProject());
