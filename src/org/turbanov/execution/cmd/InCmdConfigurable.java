@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * @author Andrey Turbanov
@@ -23,6 +24,8 @@ public class InCmdConfigurable implements Configurable  {
     private JTextArea toAddProgramOptions;
     private JTextArea toRemoveProgramOptions;
     private JCheckBox runInTerminal;
+    private SpinnerNumberModel freePortSpinnerModel;
+    private JCheckBox findFreePort;
 
     public InCmdConfigurable(Project project) {
         myProject = project;
@@ -59,19 +62,32 @@ public class InCmdConfigurable implements Configurable  {
 
         runInTerminal = new JCheckBox("Run inside IDEA Terminal", myState.isRunInsideTerminal);
 
+        Box bottomBox = Box.createHorizontalBox();
+        freePortSpinnerModel = new SpinnerNumberModel(60000, 1024, 65535, 1);
+        JSpinner freePortSpinner = new JSpinner(freePortSpinnerModel);
+        findFreePort = new JCheckBox("Try to find free port");
+        findFreePort.setToolTipText("At start plugin will try to find free port\n" +
+                "This port will be available as $freePort macros in program/VM options");
+        bottomBox.add(findFreePort);
+        bottomBox.add(LabeledComponent.create(freePortSpinner, "Start value to check"));
+
         JPanel result = new JPanel(new BorderLayout());
         result.add(runInTerminal, BorderLayout.PAGE_START);
         result.add(mainBox, BorderLayout.CENTER);
+        result.add(bottomBox, BorderLayout.PAGE_END);
         return result;
     }
 
     @Override
     public boolean isModified() {
-        return !toAddVmOptions.getText().equals(myState.toAddVmOptions)
-            || !toRemoveVmOptions.getText().equals(myState.toRemoveVmOptions)
-            || !toAddProgramOptions.getText().equals(myState.toAddProgramOptions)
-            || !toRemoveProgramOptions.getText().equals(myState.toRemoveProgramOptions)
-            || runInTerminal.isSelected() != myState.isRunInsideTerminal;
+        boolean simpleModified = !toAddVmOptions.getText().equals(myState.toAddVmOptions)
+                || !toRemoveVmOptions.getText().equals(myState.toRemoveVmOptions)
+                || !toAddProgramOptions.getText().equals(myState.toAddProgramOptions)
+                || !toRemoveProgramOptions.getText().equals(myState.toRemoveProgramOptions)
+                || runInTerminal.isSelected() != myState.isRunInsideTerminal;
+        if (simpleModified) return true;
+        Integer currentValue = findFreePort.isSelected() ? freePortSpinnerModel.getNumber().intValue() : null;
+        return !Objects.equals(currentValue, myState.startPort);
     }
 
     @Override
@@ -82,6 +98,7 @@ public class InCmdConfigurable implements Configurable  {
         state.toAddProgramOptions = toAddProgramOptions.getText().trim();
         state.toRemoveProgramOptions = toRemoveProgramOptions.getText().trim();
         state.isRunInsideTerminal = runInTerminal.isSelected();
+        state.startPort = findFreePort.isSelected() ? freePortSpinnerModel.getNumber().intValue() : null;
         ServiceManager.getService(myProject, OptionsPatchConfiguration.class).loadState(state);
     }
 
@@ -92,6 +109,12 @@ public class InCmdConfigurable implements Configurable  {
         toAddProgramOptions.setText(myState.toAddProgramOptions);
         toRemoveProgramOptions.setText(myState.toRemoveProgramOptions);
         runInTerminal.setSelected(myState.isRunInsideTerminal);
+        if (myState.startPort == null) {
+            findFreePort.setSelected(false);
+        } else {
+            findFreePort.setSelected(true);
+            freePortSpinnerModel.setValue(myState.startPort);
+        }
     }
 
     @Override

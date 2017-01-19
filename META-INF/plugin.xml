@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>1.4</version>
+    <version>1.5</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,14 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
+        <h3>1.5</h3>
+        <ul>
+            <li>
+                Added $freePort macros available in "To add" options. Plugin will replace it with some free port.<br>
+                This is very useful when you want to debug application launched via this plugin.<br>
+                Just add <div style="font-family:monospace">-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$freePort</div> to "To add VM options".
+            </li>
+        </ul>
         <h3>1.4</h3>
         <ul>
             <li>Fix run inside 2016.x IDEA terminal</li>

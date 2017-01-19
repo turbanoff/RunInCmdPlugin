@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
@@ -70,8 +71,8 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         LOG.info("Old command line: " + oldCommandLine);
 
         OptionsPatchConfiguration options = ServiceManager.getService(environment.getProject(), OptionsPatchConfiguration.class);
-        patchParameterList(javaParameters.getVMParametersList(), options.toAddVmOptions, options.toRemoveVmOptions);
-        patchParameterList(javaParameters.getProgramParametersList(), options.toAddProgramOptions, options.toRemoveProgramOptions);
+        patchParameterList(javaParameters.getVMParametersList(), options.toAddVmOptions, options.toRemoveVmOptions, options.startPort);
+        patchParameterList(javaParameters.getProgramParametersList(), options.toAddProgramOptions, options.toRemoveProgramOptions, options.startPort);
 
         String workingDirectory = state.getJavaParameters().getWorkingDirectory();
 
@@ -148,8 +149,14 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
         }
     }
 
-    private static void patchParameterList(ParametersList parametersList, String toAdd, String toRemove) {
+    private static void patchParameterList(ParametersList parametersList, String toAdd, String toRemove, Integer startPort) {
         if (!toAdd.isEmpty()) {
+            if (startPort != null && toAdd.contains("$freePort")) {
+                Integer freePort = findFreePort(startPort);
+                if (freePort != null) {
+                    toAdd = toAdd.replace("$freePort", freePort.toString());
+                }
+            }
             String[] toAddParams = ParametersList.parse(toAdd);
             for (String toAddParam : toAddParams) {
                 if (!parametersList.hasParameter(toAddParam)) {
@@ -168,5 +175,26 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
                 }
             }
         }
+    }
+
+    //Adapted from org.jetbrains.jps.incremental.java.JavaBuilder.findFreePort()
+    private static Integer findFreePort(int startFrom) {
+        for (int i = 0; i < 100; i++) {
+            try {
+                int tryPort = startFrom + i;
+                if (tryPort < 0) {
+                    return null;
+                }
+                try (ServerSocket serverSocket = new ServerSocket(tryPort)) {
+                    // calling close() immediately after opening socket may result that socket is not closed
+                    synchronized (serverSocket) {
+                        serverSocket.wait(1);
+                    }
+                }
+                return tryPort;
+            } catch (IOException | InterruptedException ignored) {
+            }
+        }
+        return null;
     }
 }
