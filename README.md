@@ -2,7 +2,7 @@
 Plugin for IntelliJ IDEA. It allows to run your RunConfiguration inside cmd.exe instead of internal IDEA console
 Also it provides ability to modify program and VM options on-the-fly before run
 
-#Repository link
+# Repository link
 https://plugins.jetbrains.com/plugin/7976?pr=idea
 
 
