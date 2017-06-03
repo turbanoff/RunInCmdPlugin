@@ -1,9 +1,15 @@
 package org.turbanov.execution.cmd;
 
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.JavaTestConfigurationBase;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.application.ApplicationConfiguration.JavaApplicationCommandLineState;
-import com.intellij.execution.configurations.*;
+import com.intellij.execution.configurations.CommandLineBuilder;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.configurations.JavaCommandLineState;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.configurations.ParametersList;
+import com.intellij.execution.configurations.RunProfile;
+import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.process.CapturingProcessHandler;
 import com.intellij.execution.process.ProcessNotCreatedException;
 import com.intellij.execution.process.ProcessOutput;
@@ -37,7 +43,7 @@ import java.util.List;
 /**
  * @author Andrey Turbanov
  */
-public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgramRunner<Settings> {
+public class InCmdRunner extends GenericProgramRunner {
 
     private static final Logger LOG = Logger.getInstance(InCmdRunner.class);
     private Boolean terminalPluginEnabled;
@@ -50,7 +56,8 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
 
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return executorId.equals(InCmdExecutor.executorId) && profile instanceof ApplicationConfiguration;
+        return executorId.equals(InCmdExecutor.executorId) &&
+                (profile instanceof ApplicationConfiguration || profile instanceof JavaTestConfigurationBase);
     }
 
     private boolean isTerminalPluginEnabled() {
@@ -64,7 +71,7 @@ public class InCmdRunner<Settings extends RunnerSettings> extends GenericProgram
     @Override
     protected RunContentDescriptor doExecute(@NotNull RunProfileState runProfileState, @NotNull ExecutionEnvironment environment) throws ExecutionException {
         FileDocumentManager.getInstance().saveAllDocuments();
-        JavaApplicationCommandLineState state = (JavaApplicationCommandLineState) runProfileState;
+        JavaCommandLineState state = (JavaCommandLineState) runProfileState;
         JavaParameters javaParameters = state.getJavaParameters();
 
         GeneralCommandLine oldCommandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), false);
