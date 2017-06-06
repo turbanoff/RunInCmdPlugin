@@ -90,13 +90,13 @@ public class InCmdRunner extends GenericProgramRunner {
         GeneralCommandLine generalCommandLine = CommandLineBuilder.createFromJavaParameters(javaParameters, environment.getProject(), false);
         String original = generalCommandLine.getCommandLineString();
         String newCommandLine = original
+                .replace("^", "^^") //replace ^ first
                 .replace("&", "^&")
                 .replace("<", "^<")
                 .replace(">", "^>")
                 .replace("(", "^(")
                 .replace(")", "^)")
                 .replace("@", "^@")
-                .replace("^", "^^")
                 .replace("|", "^|");
 
         if (options.isRunInsideTerminal && isTerminalPluginEnabled()) {
