@@ -1,13 +1,14 @@
 package org.turbanov.execution.cmd;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.HashMap;
-import com.pty4j.PtyProcess;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.terminal.LocalTerminalDirectRunner;
 import org.jetbrains.plugins.terminal.TerminalView;
+import com.intellij.openapi.project.Project;
+import com.pty4j.PtyProcess;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -15,12 +16,12 @@ import java.util.concurrent.ExecutionException;
  * @author Andrey Turbanov
  */
 public class TerminalRunner {
-    public static void runInIdeaTerminal(Project project, final String[] command, final String classPath, final String workingDirectory) {
+    public static void runInIdeaTerminal(@NotNull Project project, @NotNull String[] command, @NotNull String classPath, @NotNull String workingDirectory) {
         TerminalView terminalView = TerminalView.getInstance(project);
-        terminalView.createNewSession(project, new LocalTerminalDirectRunner(project) {
+        LocalTerminalDirectRunner runner = new LocalTerminalDirectRunner(project) {
             @Override
-            protected PtyProcess createProcess(@Nullable String directory) throws ExecutionException {
-                Map<String, String> envs = new HashMap<String, String>(System.getenv());
+            protected PtyProcess createProcess(@Nullable String directory, @Nullable String commandHistoryFilePath) throws ExecutionException {
+                Map<String, String> envs = new HashMap<>(System.getenv());
                 envs.put("CLASSPATH", classPath);
                 try {
                     return PtyProcess.exec(command, envs, workingDirectory);
@@ -28,6 +29,7 @@ public class TerminalRunner {
                     throw new ExecutionException(e);
                 }
             }
-        });
+        };
+        terminalView.createNewSession(runner);
     }
 }

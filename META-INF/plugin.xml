@@ -1,7 +1,7 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>1.6</version>
+    <version>1.7</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,10 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
+        <h3>1.7</h3>
+        <ul>
+            <li>Update to support IntelliJ IDEA 2019.x</li>
+        </ul>
         <h3>1.6</h3>
         <ul>
             <li>Support running JUnit tests</li>
@@ -51,13 +55,13 @@
     ]]>
     </change-notes>
 
-    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="139.0"/>
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="191"/>
 
-    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.java</depends>
-    <depends optional="true">org.jetbrains.plugins.terminal</depends>
+    <depends optional="true" config-file="terminal.plugin.support.xml">org.jetbrains.plugins.terminal</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <executor implementation="org.turbanov.execution.cmd.InCmdExecutor"/>

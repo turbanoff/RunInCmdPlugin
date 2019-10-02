@@ -1,15 +1,14 @@
 package org.turbanov.execution.cmd;
 
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Andrey Turbanov
  */
-@State(name = "RunInCmdPluginSettings", storages = {@Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/RunInCmd.xml")})
+@State(name = "RunInCmdPluginSettings", storages = {@Storage(value = "RunInCmd.xml")})
 public class OptionsPatchConfiguration implements PersistentStateComponent<OptionsPatchConfiguration> {
 
     public String toAddVmOptions = "";

@@ -1,5 +1,7 @@
 out/
+.idea/copyright/
 .idea/workspace.xml
 .idea/kotlinc.xml
 .idea/uiDesigner.xml
+.idea/dictionaries/
 runInCmdPlugin.jar

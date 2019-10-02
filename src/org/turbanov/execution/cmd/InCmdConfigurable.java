@@ -1,21 +1,28 @@
 package org.turbanov.execution.cmd;
 
+import javax.swing.Box;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
+
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.Objects;
 
 /**
  * @author Andrey Turbanov
  */
-public class InCmdConfigurable implements Configurable  {
+public class InCmdConfigurable implements Configurable {
 
     private final Project myProject;
     private OptionsPatchConfiguration myState;
