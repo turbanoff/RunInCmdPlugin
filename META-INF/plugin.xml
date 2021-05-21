@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>1.7</version>
+    <version>1.8</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,11 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
+        <h3>1.8</h3>
+        <ul>
+            <li>Fix IllegalStateException in IntelliJ IDEA 2020.1</li>
+            <li>Fix run inside IDEA terminal</li>
+        </ul>
         <h3>1.7</h3>
         <ul>
             <li>Update to support IntelliJ IDEA 2019.x</li>
@@ -69,14 +74,6 @@
         <projectConfigurable instance="org.turbanov.execution.cmd.InCmdConfigurable"/>
         <projectService serviceImplementation="org.turbanov.execution.cmd.OptionsPatchConfiguration"/>
     </extensions>
-
-    <application-components>
-        <!-- Add your application components here -->
-    </application-components>
-
-    <project-components>
-        <!-- Add your project components here -->
-    </project-components>
 
     <actions>
         <!-- Add your actions here -->

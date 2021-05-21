@@ -75,8 +75,10 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
         JavaCommandLineState state = (JavaCommandLineState) runProfileState;
         JavaParameters javaParameters = state.getJavaParameters();
         javaParameters.setUseDynamicClasspath(false);
-        GeneralCommandLine oldCommandLine = javaParameters.toCommandLine();
-        LOG.info("Old command line: " + oldCommandLine);
+        LOG.info("Old command line. JDK path: " + javaParameters.getJdkPath() +
+                " VM options: " + javaParameters.getVMParametersList() +
+                " Parameters: " + javaParameters.getProgramParametersList()
+        );
 
         OptionsPatchConfiguration options = ServiceManager.getService(environment.getProject(), OptionsPatchConfiguration.class);
         patchParameterList(javaParameters.getVMParametersList(), options.toAddVmOptions, options.toRemoveVmOptions, options.startPort);
