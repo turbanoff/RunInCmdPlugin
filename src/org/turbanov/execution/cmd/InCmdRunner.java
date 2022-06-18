@@ -28,16 +28,20 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.PathsList;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.execution.ParametersListUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -92,35 +96,52 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
 
         GeneralCommandLine generalCommandLine = javaParameters.toCommandLine();
         String original = generalCommandLine.getCommandLineString();
-        String newCommandLine = original
-                .replace("^", "^^") //replace ^ first
-                .replace("&", "^&")
-                .replace("<", "^<")
-                .replace(">", "^>")
-                .replace("(", "^(")
-                .replace(")", "^)")
-                .replace("@", "^@")
-                .replace("|", "^|");
+        String newCommandLine;
+        if (SystemInfo.isWindows) {
+            newCommandLine = original
+                    .replace("^", "^^") //replace ^ first
+                    .replace("&", "^&")
+                    .replace("<", "^<")
+                    .replace(">", "^>")
+                    .replace("(", "^(")
+                    .replace(")", "^)")
+                    .replace("@", "^@")
+                    .replace("|", "^|");
+        } else {
+            newCommandLine = original;
+        }
 
-        if (options.isRunInsideTerminal && isTerminalPluginEnabled()) {
-            try {
-                String[] command = {"cmd.exe", "/K", newCommandLine};
-                TerminalRunner.runInIdeaTerminal(environment.getProject(), command, classPathPathsString, workingDirectory);
-            } catch (Throwable e) {
-                showWarning("Unable to run in internal IDEA Terminal due to '" + e.getMessage() + "'<br>Run in external cmd instead", environment);
+        if (options.isRunInsideTerminal) {
+            boolean ideaTerminalEnabled = isTerminalPluginEnabled();
+            if (!ideaTerminalEnabled) {
+                showWarning("Terminal plugin disabled<br>Run in external cmd instead", environment);
                 runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
+            } else {
+                try {
+                    String[] command = {"cmd.exe", "/K", newCommandLine};
+                    TerminalRunner.runInIdeaTerminal(environment.getProject(), command, classPathPathsString, workingDirectory);
+                } catch (Throwable e) {
+                    showWarning("Unable to run in internal IDEA Terminal due to '" + e.getMessage() + "'<br>Run in external cmd instead", environment);
+                    runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
+                }
             }
         } else {
-            if (!isTerminalPluginEnabled()) {
-                showWarning("Terminal plugin disabled<br>Run in external cmd instead", environment);
-            }
             runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
         }
         return null;
     }
 
     private static void runInExternalCmd(String classPathPathsString, GeneralCommandLine generalCommandLine, String workingDirectory, String commandLine) throws ProcessNotCreatedException {
-        String[] command = {"cmd.exe", "/C", "\"start cmd.exe /K \"" + commandLine + "\"\""};
+        String[] command;
+        if (SystemInfo.isWindows) {
+            command = new String[]{"cmd.exe", "/C", "\"start cmd.exe /K \"" + commandLine + "\"\""};
+        } else {
+            List<String> parsedLine = ParametersListUtil.parse(commandLine, false, true);
+            ArrayList<String> result = new ArrayList<>(parsedLine);
+            result.add(0, "gnome-terminal");
+            result.add(1, "--");
+            command = result.toArray(new String[0]);
+        }
         Process process;
         try {
             ProcessBuilder builder = new ProcessBuilder().command(command);
@@ -134,7 +155,8 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
         }
 
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            CapturingProcessHandler processHandler = new CapturingProcessHandler(process, Charset.forName("cp866"), commandLine);
+            Charset charset = SystemInfo.isWindows ? Charset.forName("cp866") : StandardCharsets.UTF_8;
+            CapturingProcessHandler processHandler = new CapturingProcessHandler(process, charset, commandLine);
             ProcessOutput output = processHandler.runProcess();
             LOG.debug("Process output: " + output.getStdout());
             String processErrors = output.getStderr();
