@@ -3,7 +3,13 @@ package org.turbanov.execution.cmd;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.JavaTestConfigurationBase;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.configurations.*;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.configurations.JavaCommandLineState;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.configurations.ParametersList;
+import com.intellij.execution.configurations.RunProfile;
+import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.configurations.RunnerSettings;
 import com.intellij.execution.process.CapturingProcessHandler;
 import com.intellij.execution.process.ProcessNotCreatedException;
 import com.intellij.execution.process.ProcessOutput;
@@ -157,9 +163,10 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
             return external ?
                     new String[]{"cmd.exe", "/C", "\"start cmd.exe /K \"" + commandLine + "\"\""} :
                     new String[]{"cmd.exe", "/K", commandLine};
-        } if (SystemInfo.isMac) {
-            String shell = System.getenv("SHELL");
-            LOG.info("Shell used " + shell);
+        }
+        String shell = System.getenv("SHELL");
+        LOG.info("Shell used " + shell);
+        if (SystemInfo.isMac) {
             if (external) {
                 Path path = Files.createTempFile("launch", ".sh", PosixFilePermissions.asFileAttribute(
                         new HashSet<>(Arrays.asList(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ,
@@ -169,6 +176,13 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
                 return new String[]{"open", "-a", "Terminal", path.toString()};
             }
             return new String[]{shell, "-c", commandLine};
+        }
+        if (SystemInfo.isLinux) {
+            if (external) {
+                return new String[]{"gnome-terminal", "--", shell, "-c", commandLine};
+            }
+            return new String[]{shell, "-c", commandLine};
+
         } else {
             throw new UnsupportedOperationException("");
         }
