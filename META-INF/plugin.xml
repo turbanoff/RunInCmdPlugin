@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>1.8</version>
+    <version>2.0</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,11 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
+        <h3>2.0</h3>
+        <ul>
+            <li>Support macOS</li>
+            <li>Support linux (gnome-terminal)</li>
+        </ul>
         <h3>1.8</h3>
         <ul>
             <li>Fix IllegalStateException in IntelliJ IDEA 2020.1</li>
