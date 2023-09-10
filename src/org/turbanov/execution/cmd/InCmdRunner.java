@@ -1,5 +1,7 @@
 package org.turbanov.execution.cmd;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.JavaTestConfigurationBase;
 import com.intellij.execution.application.ApplicationConfiguration;
@@ -32,8 +34,6 @@ import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.PathsList;
 import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +47,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrey Turbanov
@@ -114,30 +115,41 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
             newCommandLine = original;
         }
 
+        boolean passParentEnvs = javaParameters.isPassParentEnvs();
+        Map<String, String> env = javaParameters.getEnv();
+
         if (options.isRunInsideTerminal && isTerminalPluginEnabled()) {
             try {
                 String[] command = createCommand(false, newCommandLine, null, null);
-                TerminalRunner.runInIdeaTerminal(environment.getProject(), command, classPathPathsString, workingDirectory);
+                TerminalRunner.runInIdeaTerminal(environment.getProject(), command, classPathPathsString, workingDirectory, passParentEnvs, env);
             } catch (Throwable e) {
                 showWarning("Unable to run in internal IDEA Terminal due to '" + e.getMessage() + "'<br>Run in external cmd instead", environment);
-                runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
+                runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine, passParentEnvs, env);
             }
         } else {
             if (!isTerminalPluginEnabled()) {
                 showWarning("Terminal plugin disabled<br>Run in external cmd instead", environment);
             }
-            runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine);
+            runInExternalCmd(classPathPathsString, generalCommandLine, workingDirectory, newCommandLine, passParentEnvs, env);
         }
         return null;
     }
 
-    private static void runInExternalCmd(String classPathPathsString, GeneralCommandLine generalCommandLine,
-                                         String workingDirectory, String commandLine) throws ProcessNotCreatedException {
+    private static void runInExternalCmd(@NotNull String classPathPathsString,
+                                         @NotNull GeneralCommandLine generalCommandLine,
+                                         @NotNull String workingDirectory,
+                                         @NotNull String commandLine,
+                                         boolean passParentEnv,
+                                         @NotNull Map<String, String> env) throws ProcessNotCreatedException {
         Process process;
         try {
             String[] command = createCommand(true, commandLine, workingDirectory, classPathPathsString);
             ProcessBuilder builder = new ProcessBuilder().command(command);
             builder.directory(new File(workingDirectory));
+            if (!passParentEnv) {
+                builder.environment().clear();
+            }
+            builder.environment().putAll(env);
             builder.environment().put("CLASSPATH", classPathPathsString);
             LOG.info(builder.command().toString());
             process = builder.start();
