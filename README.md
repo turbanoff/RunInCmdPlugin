@@ -6,7 +6,7 @@ Also it provides ability to modify a program and VM options on-the-fly before ru
 https://plugins.jetbrains.com/plugin/7976-runincmd
 
 
-Supported IDEA versions: 2019.1+
+Supported IDEA versions: 2020.1+
 
 
 ![screen](https://cloud.githubusercontent.com/assets/741251/10416757/4080e210-702c-11e5-915c-f5df58583719.png)
