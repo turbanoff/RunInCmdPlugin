@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -210,7 +211,7 @@ public class InCmdRunner extends GenericProgramRunner<RunnerSettings> {
     }
 
     private static void clear(PathsList classPath) {
-        List<String> pathList = classPath.getPathList();
+        List<String> pathList = new ArrayList<>(classPath.getPathList());
         for (String path : pathList) {
             classPath.remove(path);
         }

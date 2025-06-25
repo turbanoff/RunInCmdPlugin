@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.turbanov.execution.cmd</id>
     <name>RunInCmd</name>
-    <version>2.1</version>
+    <version>2.2</version>
     <vendor email="turbanoff@gmail.com" url="https://github.com/turbanoff/RunInCmdPlugin">Turbanov Andrey</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,10 @@
     <!--Add change notes here.<br>-->
     <!--<em>most HTML tags may be used</em>-->
     <change-notes><![CDATA[
+        <h3>2.2</h3>
+        <ul>
+            <li>Fix ConcurrentModificationException on IDEA 2025.2</li>
+        </ul>
         <h3>2.1</h3>
         <ul>
             <li>Support environment variables</li>
